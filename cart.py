@@ -12,8 +12,15 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from tkinter import PhotoImage
 import re
+from camspec import extract_integers
+from searchtrack import model_price
+from price_report import adjust_price, pricereport
+from cartrec import rec
+import pandas as pd
+import pickle
 
-
+with open('model.pickle', 'rb') as file:
+    model = pickle.load(file)
 
 
 
@@ -30,7 +37,7 @@ class Cart:
         self.homepage.pack(fill="both", expand=True)
 
         self.islogin = 0
-        self.image_paths = ["C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_python\\ad2.jpg", "C:\\Users\\HP\\OneDrive\Desktop\\adheesh_python\\ad3.jpg",  "C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_python\\ad1.jpg", "C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_python\\ad4.jpg"]
+        self.image_paths = ["C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_phonekart\\ad2.jpg", "C:\\Users\\HP\\OneDrive\Desktop\\adheesh_phonekart\\ad3.jpg",  "C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_phonekart\\ad1.jpg", "C:\\Users\\HP\\OneDrive\\Desktop\\adheesh_phonekart\\ad4.jpg"]
 
         
 
@@ -122,7 +129,19 @@ class Cart:
         self.fname = StringVar()
         self.lname = StringVar()
         self.numcode = 0
-        
+
+        self.batcap = IntVar()
+        self.screensize = StringVar()
+        self.storage = IntVar()
+        self.ram = IntVar()
+        self.cam = StringVar() 
+        self.relyr = IntVar()
+        self.daysused = IntVar()
+
+        self.latest_model = StringVar()
+        self.latest_brand = StringVar()
+        self.latest_price = IntVar()      
+        self.is_signup = 0 
 
         self.searchbrand = StringVar()
         
@@ -210,62 +229,203 @@ class Cart:
         #  -----------------------------------------------------------------------------------------------------------------------------
 
         # Page 3 widgets
-        canvas = Canvas(self.page3, width=self.page3.winfo_screenwidth(), height=self.page3.winfo_screenheight())
+      #   canvas = Canvas(self.page3, width=self.page3.winfo_screenwidth(), height=self.page3.winfo_screenheight())
+      #   canvas.pack(fill=BOTH, expand=True)
+      #   self.brand = StringVar()
+      #   self.model = StringVar()
+      #   self.phonenum = StringVar()
+        
+
+      #   dataframe = Frame(canvas, relief=RIDGE, bg="grey")
+      #   dataframe.place(relx=0.5, rely=0.5, anchor="center", width=950, height=750)
+      #   backbtn = Button(canvas,text="<",command=self.go_back, bg="black", fg="white",font=("times new roman",25,"bold"), width=2,height=1, padx=2, pady=6)
+      #   backbtn.place(relx=0.1, rely=0.35)
+
+      #   addpost = Label(dataframe, anchor="center", text="POST YOUR ADD", font=("times new roman", 42, "bold"), bg="grey", fg="white")
+      #   addpost.pack(side=TOP, fill=X)
+
+      #   brandlabel = Label(dataframe, text="Brand", font=("times new roman",18,"bold"), padx=2, bg="grey")
+      #   brandlabel.place(relx=0.3, rely=0.2, anchor="center")
+      #   combrand = ttk.Combobox(dataframe, textvariable=self.brand, state="readonly", font=("times new roman",13,"bold"), width=35)
+      #   combrand["values"] = ("Asus", "BlackBerry", "Gionee", "Google Pixel", "Honor", "HTC", "Huawei", "Infinix", "Intex", "iPhone", "Karbonn","Lava", "Lenovo", "LG", "Mi", "Micromax", "Motorola", "Nokia", "One Plus", "Oppo", "Realme", "Samsung", "Sony", "Techno", "Vivo")
+      #   combrand.place(relx=0.58, rely=0.2, anchor="center")
+
+      #   modlabel = Label(dataframe, text="Model", font=("times new roman",18,"bold"), padx=2, bg="grey")
+      #   modlabel.place(relx=0.3, rely=0.25, anchor="center")
+      #   modentry = Entry(dataframe, textvariable=self.model, font=("times new roman", 13, "bold"), width=35)
+      #   modentry.place(relx=0.57, rely=0.25, anchor="center")
+
+      #   adtitle = Label(dataframe, text="Ad title", font=("times new roman",18,"bold"), padx=2, bg="grey")
+      #   adtitle.place(relx=0.3, rely=0.4, anchor="center")
+      #   self.adtitle_entry = Text(dataframe, font=("times new roman", 13, "bold"), width=50, height=4)
+      #   self.adtitle_entry.place(relx=0.66, rely=0.4, anchor="center")
+      #   addtitle_msg = Label(dataframe, text="Mention the key features of your item (e.g. brand, model, age, type)", font=("times new roman",9,"bold"), bg="grey")
+      #   addtitle_msg.place(relx=0.61, rely=0.47, anchor="center")
+        
+      # #   desclabel = Label(dataframe, text="Description", font=("times new roman",18,"bold"), padx=2, bg="grey")
+      # #   desclabel.place(relx=0.3, rely=0.54, anchor="center")
+      # #   self.desctext = Text(dataframe, font=("times new roman", 13, "bold"), width=58, height=5)
+      # #   self.desctext.place(relx=0.7, rely=0.56, anchor="center")
+      # #   desc_msg = Label(dataframe, text="Include condition, features and reason for selling", font=("times new roman",9,"bold"), bg="grey")
+      # #   desc_msg.place(relx=0.56, rely=0.64, anchor="center")
+
+      #   batcaplabel = Label(dataframe, text="Battery Capacity(mAh)", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   batcaplabel.place(relx=0.35, rely=0.54, anchor="center")
+      #   batcapentry = Entry(dataframe, textvariable=self.batcap, font=("times new roman", 13, "bold"), width=7)
+      #   batcapentry.place(relx=0.5, rely=0.54, anchor="center")
+
+      #   screensizelabel = Label(dataframe, text="Screen Size(inches)", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   screensizelabel.place(relx=0.65, rely=0.54, anchor="center")
+      #   screensizeentry = Entry(dataframe, textvariable=self.screensize, font=("times new roman", 13, "bold"), width=7)
+      #   screensizeentry.place(relx=0.8, rely=0.54, anchor="center")
+
+      #   storagelabel = Label(dataframe, text="Storage(GB)", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   storagelabel.place(relx=0.3, rely=0.64, anchor="center")
+      #   storageentry = Entry(dataframe, textvariable=self.storage, font=("times new roman", 13, "bold"), width=7)
+      #   storageentry.place(relx=0.4, rely=0.64, anchor="center")
+
+      #   ramlabel = Label(dataframe, text="RAM(GB)", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   ramlabel.place(relx=0.5, rely=0.64, anchor="center")
+      #   ramentry = Entry(dataframe, textvariable=self.ram, font=("times new roman", 13, "bold"), width=7)
+      #   ramentry.place(relx=0.6, rely=0.64, anchor="center")
+
+      #   camlabel = Label(dataframe, text="Camera(MP)", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   camlabel.place(relx=0.7, rely=0.64, anchor="center")
+      #   camentry = Entry(dataframe, textvariable=self.cam, font=("times new roman", 13, "bold"), width=7)
+      #   camentry.place(relx=0.8, rely=0.64, anchor="center")
+
+      #   relyrlabel = Label(dataframe, text="Release Year", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   relyrlabel.place(relx=0.3, rely=0.74, anchor="center")
+      #   combrand = ttk.Combobox(dataframe, textvariable=self.relyr, state="readonly", font=("times new roman",13,"bold"), width=10)
+      #   combrand["values"] = (2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)
+      #   combrand.place(relx=0.46, rely=0.74, anchor="center")
+
+      #   daysusedlabel = Label(dataframe, text="No. Of Days Used", font=("times new roman",14,"bold"), padx=2, bg="grey")
+      #   daysusedlabel.place(relx=0.7, rely=0.74, anchor="center")
+      #   daysusedentry = Entry(dataframe, textvariable=self.daysused, font=("times new roman", 13, "bold"), width=7)
+      #   daysusedentry.place(relx=0.83, rely=0.74, anchor="center")
+
+        
+
+      #   addimglabel = Label(dataframe, text="Add Images", font=("times new roman",18,"bold"), padx=2, bg="grey")
+      #   addimglabel.place(relx=0.3, rely=0.84, anchor="center")
+      #   self.upload_btn = Button(dataframe,command=self.open_image, text="Upload Image", bg="white", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
+      #   self.upload_btn.place(relx=0.5, rely=0.84, anchor="center")
+
+      #   phonenum_label = Label(dataframe, text="Your Contact No.", font=("times new roman",15,"bold"), padx=2, bg="grey")
+      #   phonenum_label.place(relx=0.3, rely=0.95, anchor="center")
+      #   phonenum_entry = Entry(dataframe, textvariable=self.phonenum, font=("times new roman", 13, "bold"), width=10)
+      #   phonenum_entry.place(relx=0.47, rely=0.95, anchor="center")
+
+      #   posttbtn = Button(dataframe,command=self.register, text="POST", bg="orange", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
+      #   posttbtn.place(relx=0.89, rely=0.95, anchor="center")
+
+      #   self.create_circle_button(canvas, 1500, 50, 20, "brown", "A", 12)
+
+        # Create a canvas to hold all elements
+        # Create a canvas to hold all elements
+        canvas = Canvas(self.page3, bg="#f0f0f0", width=self.page3.winfo_screenwidth(), height=self.page3.winfo_screenheight())
         canvas.pack(fill=BOTH, expand=True)
+
         self.brand = StringVar()
         self.model = StringVar()
         self.phonenum = StringVar()
-        
 
-        dataframe = Frame(canvas, relief=RIDGE, bg="grey")
-        dataframe.place(relx=0.5, rely=0.5, anchor="center", width=950, height=750)
-        backbtn = Button(canvas,text="<",command=self.go_back, bg="black", fg="white",font=("times new roman",25,"bold"), width=2,height=1, padx=2, pady=6)
-        backbtn.place(relx=0.1, rely=0.35)
+        # Frame for content with padding and relief
+        dataframe = Frame(canvas, bg="#34495e", relief=RIDGE, bd=10)
+        dataframe.place(relx=0.5, rely=0.5, anchor="center", width=900, height=700)
 
-        addpost = Label(dataframe, anchor="center", text="POST YOUR ADD", font=("times new roman", 42, "bold"), bg="grey", fg="white")
-        addpost.pack(side=TOP, fill=X)
+        # Back Button Styling
+        backbtn = Button(canvas, text="<", command=self.go_back, bg="#16a085", fg="white", font=("Arial", 16, "bold"), width=2, height=1)
+        backbtn.place(relx=0.05, rely=0.1)
 
-        brandlabel = Label(dataframe, text="Brand", font=("times new roman",18,"bold"), padx=2, bg="grey")
-        brandlabel.place(relx=0.3, rely=0.2, anchor="center")
-        combrand = ttk.Combobox(dataframe, textvariable=self.brand, state="readonly", font=("times new roman",13,"bold"), width=35)
+        # Add Post Label
+        addpost = Label(dataframe, text="POST YOUR AD", font=("Arial", 30, "bold"), bg="#34495e", fg="white")
+        addpost.pack(side=TOP, fill=X, pady=20)
+
+        # Brand Label and Combobox
+        brandlabel = Label(dataframe, text="Brand", font=("Arial", 16, "bold"), bg="#34495e", fg="white")
+        brandlabel.place(relx=0.25, rely=0.15, anchor="center")
+        combrand = ttk.Combobox(dataframe, textvariable=self.brand, state="readonly", font=("Arial", 12), width=30)
         combrand["values"] = ("Asus", "BlackBerry", "Gionee", "Google Pixel", "Honor", "HTC", "Huawei", "Infinix", "Intex", "iPhone", "Karbonn","Lava", "Lenovo", "LG", "Mi", "Micromax", "Motorola", "Nokia", "One Plus", "Oppo", "Realme", "Samsung", "Sony", "Techno", "Vivo")
-        combrand.place(relx=0.58, rely=0.2, anchor="center")
+        combrand.place(relx=0.65, rely=0.15, anchor="center")
 
-        modlabel = Label(dataframe, text="Model", font=("times new roman",18,"bold"), padx=2, bg="grey")
-        modlabel.place(relx=0.3, rely=0.25, anchor="center")
-        modentry = Entry(dataframe, textvariable=self.model, font=("times new roman", 13, "bold"), width=35)
-        modentry.place(relx=0.57, rely=0.25, anchor="center")
+        # Model Label and Entry
+        modlabel = Label(dataframe, text="Model", font=("Arial", 16, "bold"), bg="#34495e", fg="white")
+        modlabel.place(relx=0.25, rely=0.22, anchor="center")
+        modentry = Entry(dataframe, textvariable=self.model, font=("Arial", 12), width=30, relief="groove", bd=2)
+        modentry.place(relx=0.65, rely=0.22, anchor="center")
 
-        adtitle = Label(dataframe, text="Ad title", font=("times new roman",18,"bold"), padx=2, bg="grey")
-        adtitle.place(relx=0.3, rely=0.4, anchor="center")
-        self.adtitle_entry = Text(dataframe, font=("times new roman", 13, "bold"), width=50, height=4)
-        self.adtitle_entry.place(relx=0.66, rely=0.4, anchor="center")
-        addtitle_msg = Label(dataframe, text="Mention the key features of your item (e.g. brand, model, age, type)", font=("times new roman",9,"bold"), bg="grey")
-        addtitle_msg.place(relx=0.61, rely=0.47, anchor="center")
-        
-        desclabel = Label(dataframe, text="Description", font=("times new roman",18,"bold"), padx=2, bg="grey")
-        desclabel.place(relx=0.3, rely=0.54, anchor="center")
-        self.desctext = Text(dataframe, font=("times new roman", 13, "bold"), width=58, height=5)
-        self.desctext.place(relx=0.7, rely=0.56, anchor="center")
-        desc_msg = Label(dataframe, text="Include condition, features and reason for selling", font=("times new roman",9,"bold"), bg="grey")
-        desc_msg.place(relx=0.56, rely=0.64, anchor="center")
+         # Ad Title Section
+        adtitle = Label(dataframe, text="Ad Title", font=("Arial", 16, "bold"), bg="#34495e", fg="white")
+        adtitle.place(relx=0.25, rely=0.32, anchor="center")
+        self.adtitle_entry = Text(dataframe, font=("Arial", 12), width=40, height=2, relief="groove", bd=2)
+        self.adtitle_entry.place(relx=0.65, rely=0.32, anchor="center")
+        addtitle_msg = Label(dataframe, text="Mention key features (e.g. brand, model, age)", font=("Arial", 9, "bold"), bg="#34495e", fg="lightgrey")
+        addtitle_msg.place(relx=0.65, rely=0.38, anchor="center")
 
-        addimglabel = Label(dataframe, text="Add Images", font=("times new roman",18,"bold"), padx=2, bg="grey")
-        addimglabel.place(relx=0.3, rely=0.74, anchor="center")
-        self.upload_btn = Button(dataframe,command=self.open_image, text="Upload Image", bg="white", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
-        self.upload_btn.place(relx=0.5, rely=0.74, anchor="center")
+         # Battery Capacity
+        batcaplabel = Label(dataframe, text="Battery Capacity (mAh)", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        batcaplabel.place(relx=0.3, rely=0.46, anchor="center")
+        batcapentry = Entry(dataframe, textvariable=self.batcap, font=("Arial", 12), width=8, relief="groove", bd=2)
+        batcapentry.place(relx=0.5, rely=0.46, anchor="center")
 
-        phonenum_label = Label(dataframe, text="Your Contact No.", font=("times new roman",15,"bold"), padx=2, bg="grey")
-        phonenum_label.place(relx=0.3, rely=0.9, anchor="center")
-        phonenum_entry = Entry(dataframe, textvariable=self.phonenum, font=("times new roman", 13, "bold"), width=10)
-        phonenum_entry.place(relx=0.47, rely=0.9, anchor="center")
+         # Screen Size
+        screensizelabel = Label(dataframe, text="Screen Size (inches)", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        screensizelabel.place(relx=0.65, rely=0.46, anchor="center")
+        screensizeentry = Entry(dataframe, textvariable=self.screensize, font=("Arial", 12), width=8, relief="groove", bd=2)
+        screensizeentry.place(relx=0.8, rely=0.46, anchor="center")
 
-        posttbtn = Button(dataframe,command=self.register, text="POST", bg="orange", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
-        posttbtn.place(relx=0.89, rely=0.95, anchor="center")
+         # Storage
+        storagelabel = Label(dataframe, text="Storage (GB)", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        storagelabel.place(relx=0.3, rely=0.56, anchor="center")
+        storageentry = Entry(dataframe, textvariable=self.storage, font=("Arial", 12), width=8, relief="groove", bd=2)
+        storageentry.place(relx=0.5, rely=0.56, anchor="center")
 
-        self.create_circle_button(canvas, 1500, 50, 20, "brown", "A", 12)
+         # RAM
+        ramlabel = Label(dataframe, text="RAM (GB)", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        ramlabel.place(relx=0.65, rely=0.56, anchor="center")
+        ramentry = Entry(dataframe, textvariable=self.ram, font=("Arial", 12), width=8, relief="groove", bd=2)
+        ramentry.place(relx=0.8, rely=0.56, anchor="center")
 
-        
+         # Camera MP
+        camlabel = Label(dataframe, text="Camera (MP)", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        camlabel.place(relx=0.3, rely=0.66, anchor="center")
+        camentry = Entry(dataframe, textvariable=self.cam, font=("Arial", 12), width=8, relief="groove", bd=2)
+        camentry.place(relx=0.5, rely=0.66, anchor="center")
+
+         # Release Year
+        relyrlabel = Label(dataframe, text="Release Year", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        relyrlabel.place(relx=0.65, rely=0.66, anchor="center")
+        comyear = ttk.Combobox(dataframe, textvariable=self.relyr, state="readonly", font=("Arial", 12), width=10)
+        comyear["values"] = (2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)
+        comyear.place(relx=0.8, rely=0.66, anchor="center")
+
+        # Number of Days Used
+        daysusedlabel = Label(dataframe, text="No. of Days Used", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        daysusedlabel.place(relx=0.3, rely=0.76, anchor="center")
+        daysusedentry = Entry(dataframe, textvariable=self.daysused, font=("Arial", 12), width=8, relief="groove", bd=2)
+        daysusedentry.place(relx=0.5, rely=0.76, anchor="center")
+
+        # Contact Number
+        phonenum_label = Label(dataframe, text="Your Contact No.", font=("Arial", 14, "bold"), bg="#34495e", fg="white")
+        phonenum_label.place(relx=0.2, rely=0.95, anchor="center")
+        phonenum_entry = Entry(dataframe, textvariable=self.phonenum, font=("Arial", 12), width=10, relief="groove", bd=2)
+        phonenum_entry.place(relx=0.4, rely=0.95, anchor="center")
+
+        # Upload Image Button
+        addimglabel = Label(dataframe, text="Add Images", font=("Arial", 16, "bold"), bg="#34495e", fg="white")
+        addimglabel.place(relx=0.3, rely=0.84, anchor="center")
+        self.upload_btn = Button(dataframe, command=self.open_image, text="Upload Image", bg="#16a085", fg="white", font=("Arial", 12, "bold"), width=12, height=1)
+        self.upload_btn.place(relx=0.5, rely=0.84, anchor="center")
+
+         # Post Button
+        postbtn = Button(dataframe, command=self.register, text="POST", bg="#e67e22", fg="white", font=("Arial", 14, "bold"), width=10, height=1)
+        postbtn.place(relx=0.85, rely=0.96, anchor="center")
+
+        self.create_circle_button(canvas, 1500, 50, 20, "brown", "A", 12) 
+
+
 
         
 
@@ -276,86 +436,90 @@ class Cart:
         
         # Navigation bar
         
-        self.page4.navbar = Frame(self.page4, bg="grey", height=80)
-        self.page4.navbar.pack(fill=X)
-        can = Canvas(self.page4.navbar, width=50, height=50, bg="grey", highlightthickness=0)
-        can.place(relx=0.88, rely=0.15)
-        self.create_circle_button(can, 25, 25, 20, "brown", "A", 12)
+      #   self.page4.navbar = Frame(self.page4, bg="grey", height=80)
+      #   self.page4.navbar.pack(fill=X)
+      #   can = Canvas(self.page4.navbar, width=50, height=50, bg="grey", highlightthickness=0)
+      #   can.place(relx=0.88, rely=0.15)
+      #   self.create_circle_button(can, 25, 25, 20, "brown", "A", 12)
         
         
-        backbtn = Button(self.page4.navbar,text="<",command=self.go_back, bg="black", fg="white",font=("times new roman",25,"bold"), width=2,height=1, padx=2, pady=3)
-        backbtn.pack(side=LEFT)
-        title_label = Label(self.page4.navbar, text="TechKart", fg="white", bg="grey", font=('Arial', 32, 'bold', 'italic') , padx=20, pady=20)
-        title_label.place(relx=0.05, rely=-0.1)
-        # Search bar
-        search_frame = Frame(self.page4.navbar, bg="white", width=500, height=90)
-        # search_frame.pack(side=RIGHT, padx=20, pady=20)
-        search_frame.place(relx=0.3, rely=0.2)
-        self.entry = ttk.Combobox(search_frame,textvariable=self.searchbrand, width=38, font=('Arial', 16))
-        self.entry["values"] = ("ALL BRANDS","Asus", "BlackBerry", "Gionee", "Google Pixel", "Honor", "HTC", "Huawei", "Infinix", "Intex", "iPhone", "Karbonn","Lava", "Lenovo", "LG", "Mi", "Micromax", "Motorola", "Nokia", "One Plus", "Oppo", "Realme", "Samsung", "Sony", "Techno", "Vivo")
-        self.entry.insert(0, 'Search Brands')
-        self.entry.bind('<FocusIn>', self.on_entry_click)
-        self.entry.bind('<FocusOut>', self.on_focus_out)
-        self.entry.pack(side=LEFT, padx=(0, 10))
-        search_button = Button(search_frame, text="Search", command=self.search, font=('Arial', 14))
-        search_button.pack(side=LEFT)
-
-        
-
-        
-        
-        canvas = Canvas(self.page4)
-        canvas.pack(side=LEFT, fill=BOTH, expand=True)
-
-        # Add a scrollbar to the canvas
-        scrollbar = Scrollbar(self.page4, orient=VERTICAL, command=canvas.yview)
-        scrollbar.pack(side=RIGHT, fill=Y)
-
-        # Configure the canvas to use the scrollbar
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-
-        # Create a frame inside the canvas to contain the information
-        frame = Frame(canvas)
-        canvas.create_window((0, 0), window=frame, anchor="nw")
+      #   backbtn = Button(self.page4.navbar,text="<",command=self.go_back, bg="black", fg="white",font=("times new roman",25,"bold"), width=2,height=1, padx=2, pady=3)
+      #   backbtn.pack(side=LEFT)
+      #   title_label = Label(self.page4.navbar, text="TechKart", fg="white", bg="grey", font=('Arial', 32, 'bold', 'italic') , padx=20, pady=20)
+      #   title_label.place(relx=0.05, rely=-0.1)
+      #   # Search bar
+      #   search_frame = Frame(self.page4.navbar, bg="white", width=500, height=90)
+      #   # search_frame.pack(side=RIGHT, padx=20, pady=20)
+      #   search_frame.place(relx=0.3, rely=0.2)
+      #   self.entry = ttk.Combobox(search_frame,textvariable=self.searchbrand, width=38, font=('Arial', 16))
+      #   self.entry["values"] = ("ALL BRANDS","Asus", "BlackBerry", "Gionee", "Google Pixel", "Honor", "HTC", "Huawei", "Infinix", "Intex", "iPhone", "Karbonn","Lava", "Lenovo", "LG", "Mi", "Micromax", "Motorola", "Nokia", "One Plus", "Oppo", "Realme", "Samsung", "Sony", "Techno", "Vivo")
+      #   self.entry.insert(0, 'Search Brands')
+      #   self.entry.bind('<FocusIn>', self.on_entry_click)
+      #   self.entry.bind('<FocusOut>', self.on_focus_out)
+      #   self.entry.pack(side=LEFT, padx=(0, 10))
+      #   search_button = Button(search_frame, text="Search", command=self.search, font=('Arial', 14))
+      #   search_button.pack(side=LEFT)
 
         
 
-        conn = mysql.connector.connect(host="localhost", username="root", password="addysql@13", database="pythonproject")
-        mycursor = conn.cursor()
-        mycursor.execute("select *from products")
-        row = mycursor.fetchall()
-        c = 0
-        r = 0
-        for i in row:
-           infoframe = Frame(frame, bg="light blue", height=350, width=350, bd=1, highlightbackground="black")
-           infoframe.grid(row=r, column=c, padx=10, pady=10)
-           adtitle = Label(infoframe, anchor="center", text=f"{i[7]}", font=("times new roman", 16, "bold", "italic"), bg="light blue", fg="black")
-           adtitle.place(rely=0.12, relx=0.5, anchor="center")
-           temp_image_path = f"temp_image_{i[0]}.png"  
-           img = Image.open(temp_image_path)
-           desired_width = 100  
-           desired_height = 100 
-           img = img.resize((desired_width, desired_height))
-           photo = ImageTk.PhotoImage(img)
-           self.img_label = Label(infoframe, image=photo)
-           self.img_label.image = photo  
-           self.img_label.place(relx=0.37, rely=0.2)
-           pricelbl = Label(infoframe, anchor="center", text=f"₹{i[5]}/-",font=("times new roman", 16, "bold"), bg="light blue", fg="red" )
-           pricelbl.place(relx=0.5, rely=0.6, anchor="center")
-           adbrand = Label(infoframe, anchor="center", text=f"{i[3]}", font=("times new roman", 16, "bold"), bg="light blue", fg="black")
-           adbrand.place(rely=0.68, relx=0.5, anchor="center")
-           admodel = Label(infoframe, anchor="center", text=f"{i[4]}", font=("times new roman", 16, "bold"), bg="light blue", fg="black")
-           admodel.place(rely=0.75, relx=0.5, anchor="center")
-           shopbtn = Button(infoframe,command=lambda i=i: self.shop(i), text="SHOP NOW", bg="orange", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
-           shopbtn.place(relx=0.5, rely=0.9, anchor="center")
+        
+        
+      #   canvas = Canvas(self.page4)
+      #   canvas.pack(side=LEFT, fill=BOTH, expand=True)
+
+      #   # Add a scrollbar to the canvas
+      #   scrollbar = Scrollbar(self.page4, orient=VERTICAL, command=canvas.yview)
+      #   scrollbar.pack(side=RIGHT, fill=Y)
+
+      #   # Configure the canvas to use the scrollbar
+      #   canvas.configure(yscrollcommand=scrollbar.set)
+      #   canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+      #   # Create a frame inside the canvas to contain the information
+      #   frame = Frame(canvas)
+      #   canvas.create_window((0, 0), window=frame, anchor="nw")
+
+        
+
+      #   conn = mysql.connector.connect(host="localhost", username="root", password="addysql@13", database="pythonproject")
+      #   mycursor = conn.cursor()
+      #   mycursor.execute("select *from products")
+        
+      #   row = mycursor.fetchall()
+      #   self.create_page4_widgets(frame, row)
+      #   c = 0
+      #   r = 0
+      #   for i in row:
+      #      infoframe = Frame(frame, bg="light blue", height=350, width=350, bd=1, highlightbackground="black")
+      #      infoframe.grid(row=r, column=c, padx=10, pady=10)
+      #      adtitle = Label(infoframe, anchor="center", text=f"{i[7]}", font=("times new roman", 16, "bold", "italic"), bg="light blue", fg="black")
+      #      adtitle.place(rely=0.12, relx=0.5, anchor="center")
+      #      temp_image_path = f"temp_image_{i[0]}.png"  
+      #      img = Image.open(temp_image_path)
+      #      desired_width = 100  
+      #      desired_height = 100 
+      #      img = img.resize((desired_width, desired_height))
+      #      photo = ImageTk.PhotoImage(img)
+      #      self.img_label = Label(infoframe, image=photo)
+      #      self.img_label.image = photo  
+      #      self.img_label.place(relx=0.37, rely=0.2)
+      #      pricelbl = Label(infoframe, anchor="center", text=f"₹{i[5]}/-",font=("times new roman", 16, "bold"), bg="light blue", fg="red" )
+      #      pricelbl.place(relx=0.5, rely=0.6, anchor="center")
+      #      adbrand = Label(infoframe, anchor="center", text=f"{i[3]}", font=("times new roman", 16, "bold"), bg="light blue", fg="black")
+      #      adbrand.place(rely=0.68, relx=0.5, anchor="center")
+      #      admodel = Label(infoframe, anchor="center", text=f"{i[4]}", font=("times new roman", 16, "bold"), bg="light blue", fg="black")
+      #      admodel.place(rely=0.75, relx=0.5, anchor="center")
+      #      shopbtn = Button(infoframe,command=lambda i=i: self.shop(i), text="SHOP NOW", bg="orange", fg="black",font=("times new roman",12,"bold"), width=12, height=1, padx=2, pady=6)
+      #      shopbtn.place(relx=0.5, rely=0.9, anchor="center")
 
            
-           c += 1
+      #      c += 1
 
-           if c == 4:
-              c = 0
-              r += 1
+      #      if c == 4:
+      #         c = 0
+      #         r += 1
+
+     
               
            
 
@@ -440,6 +604,14 @@ class Cart:
           for widget in self.page7.winfo_children():
             widget.destroy()
 
+          for widget in self.page4.winfo_children():
+            widget.destroy()
+
+          self.usermail.set("")
+          self.usermail2.set("")
+          self.userpassword.set("")
+          self.userpassword2.set("")
+
           
 
           messagebox.showinfo("LOGGED OUT", "You have been Logged Out")
@@ -485,6 +657,8 @@ class Cart:
 
                #  canvas = Canvas(self.page6, width=self.page6.winfo_screenwidth(), height=self.page6.winfo_screenheight(), bg="white")
                #  canvas.pack(fill=BOTH, expand=True)
+                self.feedrec(self.email)
+
                 self.page6_widgets(self.email, res[8])
 
                 #page 7 widgets
@@ -522,7 +696,10 @@ class Cart:
                 self.lname = None
                 self.totalsales = 0
                 query = "insert into users values(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                query2 = 'insert into useractivity values(%s, %s, %s, %s, %s, %s)'
                 mycursor.execute(query, (self.user_id, self.email, password, self.current_month, self.current_year, self.fname, self.lname, self.contact, self.totalsales))
+                mycursor.execute(query2, (self.user_id, self.email, None, None, None, 0))
+                
                 
                 match = re.search(r"^[^@._]+",self. email)
                 if match:
@@ -531,9 +708,11 @@ class Cart:
 
                 conn.commit()
                 self.islogin = 1
+                self.is_signup = 1
                 # Page 6 widgets
                #  canvas = Canvas(self.page6, width=self.page6.winfo_screenwidth(), height=self.page6.winfo_screenheight(), bg="white")
                #  canvas.pack(fill=BOTH, expand=True)
+                self.feedrec(self.email)
                 self.page6_widgets(self.email, self.totalsales)
                 # page 7 widgets
                 self.page7_widgets(self.fname, self.lname, self.email)
@@ -582,21 +761,29 @@ class Cart:
             self.show_page("homepage")
 
     def register(self):
-        if self.brand.get() == "" or self.model.get() == "" or self.phonenum.get() == "":
+        if self.brand.get() == "" or self.model.get() == "" or self.phonenum.get() == "" or self.batcap.get() == 0 or self.screensize.get() == 0 or self.storage.get() == 0 or self.ram.get() == 0 or self.cam.get() == "":
             messagebox.showerror("Error","All fields compulsory")
         else:
-         self.price = random.randint(20000, 30000)
+         num1 = IntVar()
+         num2 = IntVar()
+         num3 = IntVar()
+         num4 = IntVar()
+         num5 = IntVar()
+
+         num1, num2, num3, num4, num5 = extract_integers(self.cam.get())
+         
+         self.price = int(adjust_price(int(model.predict([[int(self.batcap.get()), float(self.screensize.get()), int(self.storage.get()), int(self.ram.get()), int(num1), int(num2), int(num3), int(num4), int(num5)]])[0]), int(self.relyr.get()), int(self.daysused.get())))
          reg = messagebox.askyesno("",f"Your product evaluated to INR {self.price}, Do you want to confirm registeration?")
          if reg > 0:
+             pricereport(model, int(self.batcap.get()), float(self.screensize.get()), int(self.storage.get()), int(self.ram.get()), int(num1), int(num2), int(num3), int(num4), int(num5), int(self.relyr.get()), int(self.daysused.get()))
              try:
                  conn = mysql.connector.connect(host="localhost", username="root", password="addysql@13", database="pythonproject")
                  mycursor = conn.cursor()
+                  
                 #  self.product_id = random.randint(1034444000, 1034448999)
                  self.adtitle = self.adtitle_entry.get("1.0", END)
-                 if self.desctext.get("1.0", END) == "":
-                    self.descp = "Brand new mobile phone with high-resolution display, powerful performance, and impressive camera capabilities."
-                 else:
-                    self.descp = self.desctext.get("1.0", END)
+               
+                 self.descp = f"Battery Capacity:{self.batcap.get()} mAh Screen Size:{self.screensize.get()} inches \n Storage:{self.storage.get()} GB RAM:{self.ram.get()} GB Camera(MP):{self.cam.get()}"
 
 
                  image = self.img
@@ -614,6 +801,7 @@ class Cart:
                  mycursor.execute(query, (self.product_id, self.email, phonenumber, mobilebrand, brandmodel, self.price, img_data, self.adtitle, self.descp))
                  conn.commit()
                  messagebox.showinfo("","Product resgistered for sale!")
+                 self.resetfields()
              except IntegrityError:
                 messagebox.showerror("Error", "Product ID already exists. Please try again.")
                
@@ -725,6 +913,8 @@ class Cart:
         mycursor.execute("select *from products")
       else:
        mycursor.execute(f"select *from products where brand='{self.searchbrand.get()}' ")
+       m, p = model_price(self.searchbrand.get())
+       self.latestproduct(self.searchbrand.get(), m, p)
       row = mycursor.fetchall()
       
       self.create_page4_widgets(frame, row)
@@ -893,6 +1083,7 @@ class Cart:
 
     def shop(self, i):
        #sp = messagebox.askyesno(f"{i[3]} {i[4]}", f"Pay {i[5]}?")
+       self.latestproduct(i[3], i[4], i[5])
        self.page5widgets(i)
        self.show_page("page5")
 
@@ -915,6 +1106,81 @@ class Cart:
         conn.commit()
         messagebox.showinfo("Congradulations!", f"Your Order of {bnd} {mdl} confirmed")
         conn.close()
+
+    def latestproduct(self, b, m, p):
+       conn = mysql.connector.connect(host="localhost", username="root", password="addysql@13", database="pythonproject")
+       mycursor = conn.cursor()
+
+       if self.is_signup == 0:
+          query = 'update useractivity set brand=%s, model=%s, price=%s, search_hist=%s where email=%s'
+          mycursor.execute(query, (b, m, p, 1, self.usermail.get()))
+       else:
+          query = 'update useractivity set brand=%s, model=%s, price=%s, search_hist=%s where email=%s'
+          mycursor.execute(query, (b, m, p, 1, self.usermail2.get()))
+
+
+       conn.commit()
+       conn.close()
+
+    def feedrec(self,mail):
+        self.page4.navbar = Frame(self.page4, bg="grey", height=80)
+        self.page4.navbar.pack(fill=X)
+        can = Canvas(self.page4.navbar, width=50, height=50, bg="grey", highlightthickness=0)
+        can.place(relx=0.88, rely=0.15)
+        self.create_circle_button(can, 25, 25, 20, "brown", "A", 12)
+        
+        
+        backbtn = Button(self.page4.navbar,text="<",command=self.go_back, bg="black", fg="white",font=("times new roman",25,"bold"), width=2,height=1, padx=2, pady=3)
+        backbtn.pack(side=LEFT)
+        title_label = Label(self.page4.navbar, text="TechKart", fg="white", bg="grey", font=('Arial', 32, 'bold', 'italic') , padx=20, pady=20)
+        title_label.place(relx=0.05, rely=-0.1)
+        # Search bar
+        search_frame = Frame(self.page4.navbar, bg="white", width=500, height=90)
+        # search_frame.pack(side=RIGHT, padx=20, pady=20)
+        search_frame.place(relx=0.3, rely=0.2)
+        self.entry = ttk.Combobox(search_frame,textvariable=self.searchbrand, width=38, font=('Arial', 16))
+        self.entry["values"] = ("ALL BRANDS","Asus", "BlackBerry", "Gionee", "Google Pixel", "Honor", "HTC", "Huawei", "Infinix", "Intex", "iPhone", "Karbonn","Lava", "Lenovo", "LG", "Mi", "Micromax", "Motorola", "Nokia", "One Plus", "Oppo", "Realme", "Samsung", "Sony", "Techno", "Vivo")
+        self.entry.insert(0, 'Search Brands')
+        self.entry.bind('<FocusIn>', self.on_entry_click)
+        self.entry.bind('<FocusOut>', self.on_focus_out)
+        self.entry.pack(side=LEFT, padx=(0, 10))
+        search_button = Button(search_frame, text="Search", command=self.search, font=('Arial', 14))
+        search_button.pack(side=LEFT)
+
+        canvas = Canvas(self.page4)
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
+
+        # Add a scrollbar to the canvas
+        scrollbar = Scrollbar(self.page4, orient=VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=RIGHT, fill=Y)
+
+        # Configure the canvas to use the scrollbar
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        # Create a frame inside the canvas to contain the information
+        frame = Frame(canvas)
+        canvas.create_window((0, 0), window=frame, anchor="nw")
+
+        row = rec(mail)
+        self.create_page4_widgets(frame, row)
+
+    def resetfields(self):
+       self.brand.set("")
+       self.model.set("")
+       self.adtitle_entry.delete('1.0', END) 
+       self.batcap.set(0)
+       self.screensize.set(0)
+       self.storage.set(0)
+       self.ram.set(0)
+       self.cam.set("")
+       self.relyr.set(0)
+       self.daysused.set(0)
+       self.phonenum.set("")
+       self.upload_btn.config(text="Upload Image")
+          
+
+
         
     
        
